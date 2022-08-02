@@ -1,25 +1,105 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from "react";
+import Header from "./Header";
+import Player from "./Player";
+import AddPlayerForm from "./AddPlayerForm";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends Component {
+  state = {
+    players: [
+      {
+        name: "Getoar",
+        score: 0,
+        id: 1,
+      },
+      {
+        name: "Guil",
+        score: 0,
+        id: 2,
+      },
+      {
+        name: "Ashley",
+        score: 0,
+        id: 3,
+      },
+      {
+        name: "James",
+        score: 0,
+        id: 4,
+      },
+    ],
+  };
+
+  // player id counter
+  prevPlayerId = 4;
+
+  handleScoreChange = (index, delta) => {
+    this.setState((prevState) => {
+      const updatedPlayers = [...prevState.players];
+      const updatedPlayer = { ...updatedPlayers[index] };
+      updatedPlayer.score += delta;
+      updatedPlayers[index] = updatedPlayer;
+      return {
+        players: updatedPlayers,
+      };
+    });
+  };
+
+  handleAddPlayer = (name) => {
+    this.setState( prevState => {
+      return {
+        players: [
+          ...prevState.players,
+          {
+            name,
+            score: 0,
+            id: this.prevPlayerId += 1,
+          }
+        ]
+      }
+    });
+  }
+
+  handleRemovePlayer = (id) => {
+    this.setState((prevState) => ({
+      players: prevState.players.filter((p) => p.id !== id),
+    }));
+  };
+
+  getHighScore = () => {
+    const scores = this.state.players.map( p => p.score );
+    const highScore = Math.max(...scores);
+    if (highScore) {
+      return highScore;
+    } 
+    return null;
+  }  
+
+  render() {
+
+    const highScore = this.getHighScore();
+
+    return (
+      <div className="scoreboard">
+        <Header title="Scoreboard" players={this.state.players} />
+
+        {/* Player List */}
+        {this.state.players.map((player, index) => (
+          <Player
+            name={player.name}
+            score={player.score}
+            id={player.id}
+            index={index}
+            key={player.id.toString()}
+            changeScore={this.handleScoreChange}
+            removePlayer={this.handleRemovePlayer}
+            isHighScore={highScore === player.score}
+          />
+        ))}
+
+        <AddPlayerForm addPlayer={this.handleAddPlayer} />
+      </div>
+    );
+  }
 }
 
 export default App;
